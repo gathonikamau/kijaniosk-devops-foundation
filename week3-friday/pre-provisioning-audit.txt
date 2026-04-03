@@ -1,0 +1,6 @@
+Found kk-api user already exists=> script must not recreate
+Found chmod 777 on config
+Found extra ufw deny rule=> reset firewall
+
+SCREENSHOTS
+screenshots-week3/PreAudit DirtyState-shots
