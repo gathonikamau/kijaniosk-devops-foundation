@@ -1,0 +1,33 @@
+[Unit]
+Description=KijaniKiosk Payments API
+After=network.target
+
+[Service]
+Type=simple
+User={{ kijanikiosk_user }}
+Group={{ kijanikiosk_group }}
+EnvironmentFile={{ env_file }}
+ExecStart=/opt/kijanikiosk/bin/payments-api
+Restart=on-failure
+RestartSec=5s
+
+# Hardening directives (target: systemd-analyze security < 2.5)
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+ReadWritePaths={{ kijanikiosk_base_dir }} {{ kijanikiosk_log_dir }}
+
+[Install]
+WantedBy=multi-user.target

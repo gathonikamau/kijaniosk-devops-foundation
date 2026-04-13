@@ -1,0 +1,82 @@
+- name: Configure KijaniKiosk servers
+  hosts: kijanikiosk
+  become: true
+  handlers:
+    - import_tasks: handlers/main.yml
+
+  tasks:
+    # Phase 1: Packages
+    - name: Install required packages
+      ansible.builtin.apt:
+        name: [curl, ufw, logrotate, systemd-journal-remote]
+        state: present
+        update_cache: true
+
+    # Phase 2: Service accounts
+    - name: Create service group
+      ansible.builtin.group:
+        name: "{{ kijanikiosk_group }}"
+        system: true
+        state: present
+
+    - name: Create service user
+      ansible.builtin.user:
+        name: "{{ kijanikiosk_user }}"
+        group: "{{ kijanikiosk_group }}"
+        system: true
+        shell: /usr/sbin/nologin
+        create_home: false
+        state: present
+
+    # Phase 3: Directory structure
+    - name: Create base directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ kijanikiosk_user }}"
+        group: "{{ kijanikiosk_group }}"
+        mode: "0750"
+      loop:
+        - "{{ kijanikiosk_base_dir }}"
+        - "{{ kijanikiosk_base_dir }}/config"
+        - "{{ kijanikiosk_log_dir }}"
+
+    # Phase 4: Systemd unit files
+    - name: Deploy systemd unit
+      ansible.builtin.template:
+        src: "{{ inventory_hostname }}.service.j2"
+        dest: "/etc/systemd/system/{{ kijanikiosk_user }}.service"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload systemd and restart service
+
+    # Phase 5: Firewall
+    - name: Allow SSH
+      community.general.ufw:
+        rule: allow
+        port: "22"
+        proto: tcp
+
+    - name: Deny all other inbound by default
+      community.general.ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+
+    # Phase 6: Journal persistence
+    - name: Ensure journal storage is persistent
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/journald.conf
+        regexp: "^#?Storage="
+        line: "Storage=persistent"
+      notify: Restart journald
+
+    # Phase 7: Logrotate
+    - name: Deploy logrotate config
+      ansible.builtin.template:
+        src: logrotate-kijanikiosk.j2
+        dest: /etc/logrotate.d/kijanikiosk
+        owner: root
+        group: root
+        mode: "0644"

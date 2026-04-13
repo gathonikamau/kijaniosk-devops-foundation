@@ -1,0 +1,11 @@
+- name: Reload systemd and restart service
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: "{{ kijanikiosk_user }}"
+    state: restarted
+    enabled: true
+
+- name: Restart journald
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted

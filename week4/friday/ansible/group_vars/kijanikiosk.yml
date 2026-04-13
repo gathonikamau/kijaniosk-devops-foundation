@@ -1,0 +1,8 @@
+ansible_user: ubuntu
+ansible_ssh_private_key_file: ~/.ssh/kijanikiosk.pem
+ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
+
+kijanikiosk_base_dir: /opt/kijanikiosk
+kijanikiosk_log_dir: /var/log/kijanikiosk
+kijanikiosk_user: kk-service
+kijanikiosk_group: kk-service
