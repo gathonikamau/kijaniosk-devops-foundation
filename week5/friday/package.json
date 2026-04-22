@@ -1,0 +1,9 @@
+{
+  "name": "kijanikiosk-payments",
+  "version": "1.0.0-a038217",
+  "scripts": {
+    "lint": "eslint .",
+    "build": "mkdir -p dist && cp -r src/* dist/",
+    "test": "echo \"Running tests\" && exit 0"
+  }
+}
