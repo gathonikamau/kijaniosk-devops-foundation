@@ -1,0 +1,4 @@
+kijanikiosk_user: kk-payments
+kijanikiosk_group: kk-payments
+service_port: 8001
+env_file: /opt/kijanikiosk/config/payments-api.env
